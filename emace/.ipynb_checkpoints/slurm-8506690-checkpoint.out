@@ -1,0 +1,203 @@
+2024-03-05 21:09:37.000 INFO: MACE version: 0.3.4
+2024-03-05 21:09:37.000 INFO: Configuration: Namespace(name='CH2NH2_energy_force_model_transfer_comp', seed=123, log_dir='logs', model_dir='.', checkpoints_dir='checkpoints', results_dir='results', downloads_dir='downloads', device='cuda', default_dtype='float64', log_level='INFO', error_table='TotalMAE', model='ScaleShiftMACE', r_max=10.0, radial_type='bessel', num_radial_basis=8, num_cutoff_basis=5, interaction='RealAgnosticResidualInteractionBlock', interaction_first='RealAgnosticResidualInteractionBlock', max_ell=3, correlation=3, num_interactions=2, MLP_irreps='196x0e', radial_MLP='[64, 64, 64]', hidden_irreps='196x0e + 196x1o + 196x2e', num_channels=None, max_L=None, n_energies=3, gate='silu', scaling='rms_forces_scaling', avg_num_neighbors=1, compute_avg_num_neighbors=True, compute_stress=False, compute_forces=True, train_file='ch2nh2_train.xyz', valid_file=None, valid_fraction=0.8, test_file=None, E0s='{1:-13.663181292231226, 6:-1029.2809654211628, 7:-1484.1187695035828, 8:-2042.0330099956639}', energy_key='energy', forces_key='forces', virials_key='virials', stress_key='stress', dipole_key='dipoles', charges_key='charges', nacs_key='smooth_nacs', loss='weighted', forces_weight=100.0, swa_forces_weight=100.0, energy_weight=100.0, swa_energy_weight=1000.0, virials_weight=1.0, swa_virials_weight=10.0, stress_weight=1.0, swa_stress_weight=10.0, dipole_weight=1.0, swa_dipole_weight=1.0, nacs_weight=1.0, swa_nacs_weight=1.0, config_type_weights='{"Default":1.0}', huber_delta=0.01, optimizer='adam', batch_size=5, valid_batch_size=10, lr=0.01, swa_lr=0.001, weight_decay=5e-07, amsgrad=True, scheduler='ReduceLROnPlateau', lr_factor=0.8, scheduler_patience=50, lr_scheduler_gamma=0.9993, swa=False, start_swa=None, ema=True, ema_decay=0.99, max_num_epochs=500, patience=2048, eval_interval=2, keep_checkpoints=False, restart_latest=False, save_cpu=False, clip_grad=10.0, wandb=False, wandb_project='', wandb_entity='', wandb_name='', wandb_log_hypers=['num_channels', 'max_L', 'correlation', 'lr', 'swa_lr', 'weight_decay', 'batch_size', 'max_num_epochs', 'start_swa', 'energy_weight', 'forces_weight'])
+2024-03-05 21:09:37.140 INFO: CUDA version: 11.8, CUDA device: 0
+2024-03-05 21:09:38.869 INFO: Loaded 2615 training configurations from 'ch2nh2_train.xyz'
+2024-03-05 21:09:38.870 INFO: Using random 80.0% of training set for validation
+2024-03-05 21:09:38.870 INFO: Total number of configurations: train=523, valid=2092, tests=[]
+2024-03-05 21:09:38.873 INFO: AtomicNumberTable: (1, 6, 7)
+2024-03-05 21:09:38.874 INFO: Atomic Energies not in training file, using command line argument E0s
+2024-03-05 21:09:38.874 INFO: Atomic energies: [-13.663181292231226, -1029.2809654211628, -1484.1187695035828]
+2024-03-05 21:09:39.717 INFO: WeightedEnergyForcesLoss(energy_weight=100.000, forces_weight=100.000)
+2024-03-05 21:09:39.810 INFO: Average number of neighbors: 5.0
+2024-03-05 21:09:39.810 INFO: Selected the following outputs: {'energy': True, 'forces': True, 'virials': False, 'stress': False, 'dipoles': True, 'nacs': False}
+2024-03-05 21:09:39.810 INFO: Building model
+2024-03-05 21:09:39.811 INFO: Hidden irreps: 196x0e + 196x1o + 196x2e
+/home/sc.uni-leipzig.de/rl520txoe/.local/lib/python3.11/site-packages/torch/jit/_check.py:172: UserWarning: The TorchScript type system doesn't support instance-level annotations on empty non-base types in `__init__`. Instead, either 1) use a type annotation in the class body, or 2) wrap the type in `torch.jit.Attribute`.
+  warnings.warn("The TorchScript type system doesn't support "
+2024-03-05 21:09:41.769 INFO: ScaleShiftMACE(
+  (node_embedding): LinearNodeEmbeddingBlock(
+    (linear): Linear(3x0e -> 196x0e | 588 weights)
+  )
+  (radial_embedding): RadialEmbeddingBlock(
+    (bessel_fn): BesselBasis(r_max=10.0, num_basis=8, trainable=False)
+    (cutoff_fn): PolynomialCutoff(p=5.0, r_max=10.0)
+  )
+  (spherical_harmonics): SphericalHarmonics()
+  (atomic_energies_fn): AtomicEnergiesBlock(energies=[-13.6632, -1029.2810, -1484.1188])
+  (interactions): ModuleList(
+    (0): RealAgnosticResidualInteractionBlock(
+      (linear_up): Linear(196x0e -> 196x0e | 38416 weights)
+      (conv_tp): TensorProduct(196x0e x 1x0e+1x1o+1x2e+1x3o -> 196x0e+196x1o+196x2e+196x3o | 784 paths | 784 weights)
+      (conv_tp_weights): FullyConnectedNet[8, 64, 64, 64, 784]
+      (linear): Linear(196x0e+196x1o+196x2e+196x3o -> 196x0e+196x1o+196x2e+196x3o | 153664 weights)
+      (skip_tp): FullyConnectedTensorProduct(196x0e x 3x0e -> 196x0e+196x1o+196x2e | 115248 paths | 115248 weights)
+      (reshape): reshape_irreps()
+    )
+    (1): RealAgnosticResidualInteractionBlock(
+      (linear_up): Linear(196x0e+196x1o+196x2e -> 196x0e+196x1o+196x2e | 115248 weights)
+      (conv_tp): TensorProduct(196x0e+196x1o+196x2e x 1x0e+1x1o+1x2e+1x3o -> 588x0e+980x1o+980x2e+784x3o | 3332 paths | 3332 weights)
+      (conv_tp_weights): FullyConnectedNet[8, 64, 64, 64, 3332]
+      (linear): Linear(588x0e+980x1o+980x2e+784x3o -> 196x0e+196x1o+196x2e+196x3o | 653072 weights)
+      (skip_tp): FullyConnectedTensorProduct(196x0e+196x1o+196x2e x 3x0e -> 196x0e | 115248 paths | 115248 weights)
+      (reshape): reshape_irreps()
+    )
+  )
+  (products): ModuleList(
+    (0): EquivariantProductBasisBlock(
+      (symmetric_contractions): SymmetricContraction(
+        (contractions): ModuleList(
+          (0): Contraction(
+            (contractions_weighting): ModuleList(
+              (0-1): 2 x GraphModule()
+            )
+            (contractions_features): ModuleList(
+              (0-1): 2 x GraphModule()
+            )
+            (weights): ParameterList(
+                (0): Parameter containing: [torch.float64 of size 3x4x196 (GPU 0)]
+                (1): Parameter containing: [torch.float64 of size 3x1x196 (GPU 0)]
+            )
+            (graph_opt_main): GraphModule()
+          )
+          (1): Contraction(
+            (contractions_weighting): ModuleList(
+              (0-1): 2 x GraphModule()
+            )
+            (contractions_features): ModuleList(
+              (0-1): 2 x GraphModule()
+            )
+            (weights): ParameterList(
+                (0): Parameter containing: [torch.float64 of size 3x6x196 (GPU 0)]
+                (1): Parameter containing: [torch.float64 of size 3x1x196 (GPU 0)]
+            )
+            (graph_opt_main): GraphModule()
+          )
+          (2): Contraction(
+            (contractions_weighting): ModuleList(
+              (0-1): 2 x GraphModule()
+            )
+            (contractions_features): ModuleList(
+              (0-1): 2 x GraphModule()
+            )
+            (weights): ParameterList(
+                (0): Parameter containing: [torch.float64 of size 3x7x196 (GPU 0)]
+                (1): Parameter containing: [torch.float64 of size 3x1x196 (GPU 0)]
+            )
+            (graph_opt_main): GraphModule()
+          )
+        )
+      )
+      (linear): Linear(196x0e+196x1o+196x2e -> 196x0e+196x1o+196x2e | 115248 weights)
+    )
+    (1): EquivariantProductBasisBlock(
+      (symmetric_contractions): SymmetricContraction(
+        (contractions): ModuleList(
+          (0): Contraction(
+            (contractions_weighting): ModuleList(
+              (0-1): 2 x GraphModule()
+            )
+            (contractions_features): ModuleList(
+              (0-1): 2 x GraphModule()
+            )
+            (weights): ParameterList(
+                (0): Parameter containing: [torch.float64 of size 3x4x196 (GPU 0)]
+                (1): Parameter containing: [torch.float64 of size 3x1x196 (GPU 0)]
+            )
+            (graph_opt_main): GraphModule()
+          )
+        )
+      )
+      (linear): Linear(196x0e -> 196x0e | 38416 weights)
+    )
+  )
+  (readouts): ModuleList(
+    (0): LinearReadoutBlock(
+      (linear): Linear(196x0e+196x1o+196x2e -> 3x0e | 588 weights)
+    )
+    (1): NonLinearReadoutBlock(
+      (linear_1): Linear(196x0e -> 196x0e | 38416 weights)
+      (non_linearity): Activation [x] (196x0e -> 196x0e)
+      (linear_2): Linear(196x0e -> 3x0e | 588 weights)
+    )
+  )
+  (scale_shift): ScaleShiftBlock(scale=1.718927, shift=-0.278419)
+)
+2024-03-05 21:09:41.771 INFO: Number of parameters: 1775528
+2024-03-05 21:09:41.771 INFO: Optimizer: Adam (
+Parameter Group 0
+    amsgrad: True
+    betas: (0.9, 0.999)
+    capturable: False
+    differentiable: False
+    eps: 1e-08
+    foreach: None
+    fused: None
+    lr: 0.01
+    maximize: False
+    name: embedding
+    weight_decay: 0.0
+
+Parameter Group 1
+    amsgrad: True
+    betas: (0.9, 0.999)
+    capturable: False
+    differentiable: False
+    eps: 1e-08
+    foreach: None
+    fused: None
+    lr: 0.01
+    maximize: False
+    name: interactions_decay
+    weight_decay: 5e-07
+
+Parameter Group 2
+    amsgrad: True
+    betas: (0.9, 0.999)
+    capturable: False
+    differentiable: False
+    eps: 1e-08
+    foreach: None
+    fused: None
+    lr: 0.01
+    maximize: False
+    name: interactions_no_decay
+    weight_decay: 0.0
+
+Parameter Group 3
+    amsgrad: True
+    betas: (0.9, 0.999)
+    capturable: False
+    differentiable: False
+    eps: 1e-08
+    foreach: None
+    fused: None
+    lr: 0.01
+    maximize: False
+    name: products
+    weight_decay: 5e-07
+
+Parameter Group 4
+    amsgrad: True
+    betas: (0.9, 0.999)
+    capturable: False
+    differentiable: False
+    eps: 1e-08
+    foreach: None
+    fused: None
+    lr: 0.01
+    maximize: False
+    name: readouts
+    weight_decay: 0.0
+)
+2024-03-05 21:09:41.771 INFO: Using gradient clipping with tolerance=10.000
+2024-03-05 21:09:41.771 INFO: Started training
+2024-03-05 21:10:15.645 INFO: Epoch 0: loss=51.0153, MAE_E=582.0 meV, MAE_F=408.0 meV / A
+2024-03-05 21:10:45.361 INFO: Epoch 2: loss=27.7587, MAE_E=264.6 meV, MAE_F=277.5 meV / A
+2024-03-05 21:11:15.221 INFO: Epoch 4: loss=21.0797, MAE_E=178.3 meV, MAE_F=234.9 meV / A
+2024-03-05 21:11:44.990 INFO: Epoch 6: loss=18.3230, MAE_E=149.3 meV, MAE_F=214.6 meV / A
+2024-03-05 21:12:14.817 INFO: Epoch 8: loss=15.2470, MAE_E=136.4 meV, MAE_F=191.2 meV / A
+2024-03-05 21:12:44.598 INFO: Epoch 10: loss=13.3108, MAE_E=115.6 meV, MAE_F=176.3 meV / A
+2024-03-05 21:13:14.352 INFO: Epoch 12: loss=12.3449, MAE_E=109.8 meV, MAE_F=168.2 meV / A
+2024-03-05 21:13:44.101 INFO: Epoch 14: loss=12.0851, MAE_E=115.4 meV, MAE_F=165.3 meV / A
+2024-03-05 21:14:13.882 INFO: Epoch 16: loss=11.7316, MAE_E=95.2 meV, MAE_F=161.8 meV / A
+2024-03-05 21:14:43.579 INFO: Epoch 18: loss=11.6393, MAE_E=88.4 meV, MAE_F=157.9 meV / A
