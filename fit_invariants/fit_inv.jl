@@ -1,4 +1,5 @@
 using Distributed
+
 addprocs(31, exeflags="--project=$(Base.active_project())")
 
 using ACEpotentials
@@ -45,18 +46,18 @@ JuLIP_atoms_f33 = ase2JuLIPat.(ASE_atoms, 3)
 # getting okay errors for f31 and f32 but f33 is problematic
 model_f31 = acemodel(elements = [:C, :N, :H],
 					  order = 2,
-					  totaldegree = 6,
+					  totaldegree = 13,
 					  rcut = 10.0)
 
 model_f32 = acemodel(elements = [:C, :N, :H],
                     order = 2,
-                    totaldegree = 8,
+                    totaldegree = 13,
                     rcut = 10.0)
 
 
 model_f33 = acemodel(elements = [:C, :N, :H],
                     order = 3,
-                    totaldegree = 10,
+                    totaldegree = 8,
                     rcut = 10.0)
 
 
@@ -65,10 +66,13 @@ model_f33 = acemodel(elements = [:C, :N, :H],
 using Random
 
 # solver = ACEfit.LSQR(damp = 1e-2, atol = 1e-6);
-solver = ACEfit.BLR(factorization=:svd) 
+solver = ACEfit.BLR(factorization=:svd)
+# solver = ACEfit.ARD() # code does not work - look into why later
 
 # how does it changes the meaning of prior??
-P = smoothness_prior(model_f31; p = 4)
+P1 = smoothness_prior(model_f31; p = 4)
+P2 = smoothness_prior(model_f32; p = 2)
+P3 = smoothness_prior(model_f33; p = 1)
 
 # === 1. fitting f_31 ===
 
@@ -80,14 +84,13 @@ shuffle!(JuLIP_atoms_f31)
 
 train_f31, valid_f31 = JuLIP_atoms_f31[1:Ntrain], JuLIP_atoms_f31[Ntrain+1:end]
 
-P = smoothness_prior(model_f32; p = 4)
-acefit!(model_f32, train_f32; solver=solver, prior = P);
+acefit!(model_f31, train_f31; solver=solver, prior = P1);
 
 @info("Training error")
-ACEpotentials.linear_errors(train_f32, model_f32);
+ACEpotentials.linear_errors(train_f31, model_f31);
 
 @info("Testing error")
-err = ACEpotentials.linear_errors(valid_f32, model_f32);
+err = ACEpotentials.linear_errors(valid_f31, model_f31);
 
 
 # === 2. fitting f_32 ===
@@ -99,7 +102,7 @@ shuffle!(JuLIP_atoms_f32)
 
 train_f32, valid_f32 = JuLIP_atoms_f32[1:Ntrain], JuLIP_atoms_f32[Ntrain+1:end]
 
-acefit!(model_f32, train_f32; solver=solver, prior = P);
+acefit!(model_f32, train_f32; solver=solver, prior = P2);
 
 @info("Training error")
 ACEpotentials.linear_errors(train_f32, model_f32);
@@ -116,7 +119,7 @@ shuffle!(JuLIP_atoms_f33)
 
 train_f33, valid_f33 = JuLIP_atoms_f33[1:Ntrain], JuLIP_atoms_f33[Ntrain+1:end]
 
-acefit!(model_f33, train_f33; solver=solver, prior = P);
+acefit!(model_f33, train_f33; solver=solver, prior = P3);
 
 @info("Training error")
 ACEpotentials.linear_errors(train_f33, model_f33);
