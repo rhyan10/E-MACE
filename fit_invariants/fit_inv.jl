@@ -1,6 +1,6 @@
 using Distributed
 
-addprocs(31, exeflags="--project=$(Base.active_project())")
+addprocs(11, exeflags="--project=$(Base.active_project())")
 
 using ACEpotentials
 using ExtXYZ
@@ -16,7 +16,7 @@ copy!(ase_io, pyimport_conda("ase.io", "ase", "rmg"))
 
 function ase2JuLIPat(ase_atom, inv_poly_idx)
     at = Atoms(ase_atom)
-    at.data = Dict("energy" => JData{Float64}(Inf, 0.0 ,ase_atom.po.get_potential_energy()[inv_poly_idx]))
+    at.data = Dict("energy" => JData{Float64}(Inf, 0.0 ,ase_atom.po.info["coeff"][inv_poly_idx]))
     at.cell = SMatrix{3,3}(I .* 20.0)
     return at
 end
@@ -36,7 +36,7 @@ JuLIP_atoms_f33 = ase2JuLIPat.(ASE_atoms, 3)
 ##
 
 # now we do ACE, we use three models for three invariant polynomials
-# TODO: thank about many body expansion of each E_k? 
+# TODO: think about many body expansion of each E_k? 
 # note
 # deg(E1 + E2 + E3) ≤ deg(E1E2 + E1E3 + E2E3) ≤ deg(E1E2E3)
 # probably need a small, medium and larger model
@@ -76,6 +76,8 @@ P3 = smoothness_prior(model_f33; p = 1)
 
 # === 1. fitting f_31 ===
 
+@info("fitting f_31")
+
 Random.seed!(123)
 
 train_ratio = 0.8
@@ -94,6 +96,9 @@ err = ACEpotentials.linear_errors(valid_f31, model_f31);
 
 
 # === 2. fitting f_32 ===
+
+@info("fitting f_32")
+
 Random.seed!(123)
 
 train_ratio = 0.8
@@ -111,6 +116,9 @@ ACEpotentials.linear_errors(train_f32, model_f32);
 err = ACEpotentials.linear_errors(valid_f32, model_f32);
 
 # === 3. fitting f_33 ===
+
+@info("fitting f_33")
+
 Random.seed!(123)
 
 train_ratio = 0.8
